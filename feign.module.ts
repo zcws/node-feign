@@ -1,6 +1,7 @@
 import { DynamicModule, HttpModuleOptions, Module } from "@nestjs/common";
-import { FeignService, NacosConfig } from "./feign.service";
+import { FeignService } from "./feign.service";
 import { HttpModule, HttpService } from "@nestjs/axios";
+import { NacosConfig } from "./interface";
 
 @Module({})
 export class FeignModule {

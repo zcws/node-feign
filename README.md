@@ -1,10 +1,12 @@
-# 简介
+## 简介
 
   node-feign用于远程调用http服务的客户端工具，支持调用nacos中注册的远程http服务。
 
 ## 安装
 
-  `yarn add node-feign`
+```
+yarn add node-feign
+```
 
 ## 使用
 ```
@@ -32,12 +34,7 @@ export class UserModule {
 // user.service.ts
 @Controller("users")
 export class UserController {
-  constructor(
-    private readonly db: DBService,
-    private readonly feign: FeignService,
-    private readonly service: GiftService
-  ) {
-    this.feign.do({ method,name,url } ,)
+  constructor(private readonly feign: FeignService) {
   }
 
   @Get()

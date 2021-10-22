@@ -1,19 +1,7 @@
 import * as Nacos from "nacos";
-import { Method } from "axios";
-import { getLogger, Logger } from "log4js";
+import { getLogger } from "log4js";
+import { Mapping, NacosConfig } from "./interface";
 import { HttpModuleOptions, HttpService } from "@nestjs/axios";
-
-export type NacosConfig = {
-  logger?: Logger,
-  namespace?: string,
-  serverList: string | string[]
-};
-
-type Options = {
-  url: string;
-  name: string;
-  method: Method;
-};
 
 type Service = {
   index: number;
@@ -35,7 +23,6 @@ interface Instance {
   ipDeleteTimeout: number;
   instanceIdGenerator: string;
   instanceHeartBeatTimeOut: number;
-
 }
 
 type HttpOptions = Omit<HttpModuleOptions, "data" | "params" | "url" | "method" | "baseURL">
@@ -49,10 +36,10 @@ export class FeignService {
   constructor(private readonly nacosConfig: NacosConfig, private readonly http: HttpService) {
   }
 
-  async do<T, R>(options: Options, data: { [key: string]: unknown } = {}, config: HttpOptions = {}): Promise<R> {
-    const request: HttpModuleOptions = { ...config };
-    request.baseURL = await this.getHost(options.name);
-    if (options.method === "GET") {
+  async do<T, R>(mapping: Mapping, data: { [key: string]: unknown } = {}, options: HttpOptions = {}): Promise<R> {
+    const request: HttpModuleOptions = { ...options };
+    request.baseURL = await this.getHost(mapping.name);
+    if (mapping.method === "GET") {
       request.params = data;
     } else {
       request.data = data;
@@ -60,8 +47,8 @@ export class FeignService {
 
     return this.http.axiosRef.request<T, R>({
       ...request,
-      url: options.url,
-      method: options.method
+      url: mapping.url,
+      method: mapping.method
     });
   }
 

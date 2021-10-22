@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.2](https://github.com/imbooo/node-feign/compare/v1.0.1...v1.0.2) (2021-10-22)
+
+
+### Features
+
+* 调整参数泛型。 ([2fc0dc9](https://github.com/imbooo/node-feign/commit/2fc0dc9fd94e9727231820d4ebcd39485bfffde2))
+
 ### [1.0.1](https://github.com/imbooo/node-feign/compare/v1.0.0...v1.0.1) (2021-10-22)
 
 

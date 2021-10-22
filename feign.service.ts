@@ -36,7 +36,7 @@ export class FeignService {
   constructor(private readonly nacosConfig: NacosConfig, private readonly http: HttpService) {
   }
 
-  async do<T, R>(mapping: Mapping, data: { [key: string]: unknown } = {}, options: HttpOptions = {}): Promise<R> {
+  async do<R>(mapping: Mapping, data: { [key: string]: unknown } = {}, options: HttpOptions = {}): Promise<R> {
     const request: HttpModuleOptions = { ...options };
     request.baseURL = await this.getHost(mapping.name);
     if (mapping.method === "GET") {
@@ -45,7 +45,7 @@ export class FeignService {
       request.data = data;
     }
 
-    return this.http.axiosRef.request<T, R>({
+    return this.http.axiosRef.request<unknown, R>({
       ...request,
       url: mapping.url,
       method: mapping.method

@@ -8,7 +8,7 @@ export class FeignModule {
   static forRoot(nacos: NacosConfig, config: HttpModuleOptions = {}): DynamicModule {
     const provider = {
       inject: [HttpService],
-      provide: "FeignService",
+      provide: FeignService,
       useFactory(http: HttpService) {
         return new FeignService(nacos, http);
       }

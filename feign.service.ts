@@ -1,7 +1,8 @@
 import * as Nacos from "nacos";
 import { getLogger } from "log4js";
-import { Mapping, NacosConfig } from "./interface";
+import { FeignConfig, Mapping } from "./interface";
 import { HttpModuleOptions, HttpService } from "@nestjs/axios";
+import { generateNonce, signature } from "./util";
 
 type Service = {
   index: number;
@@ -29,56 +30,70 @@ type HttpOptions = Omit<HttpModuleOptions, "data" | "params" | "url" | "method" 
 const { NacosNamingClient } = Nacos as any;
 
 export class FeignService {
-  private nacos: typeof NacosNamingClient;
+  private client: typeof NacosNamingClient;
   private services = new Map<string, Service>();
   private logger = getLogger("FeignService");
 
-  constructor(private readonly nacosConfig: NacosConfig, private readonly http: HttpService) {
+  constructor(private readonly config: FeignConfig, private readonly http: HttpService) {
   }
 
   async do<R>(mapping: Mapping, data: { [key: string]: unknown } = {}, options: HttpOptions = {}): Promise<R> {
-    const request: HttpModuleOptions = { ...options };
-    request.baseURL = await this.getHost(mapping.name);
+    const req: HttpModuleOptions = { ...options };
+    req.baseURL = await this.getHost(mapping.name);
     if (mapping.method === "GET") {
-      request.params = data;
+      req.params = data;
     } else {
-      request.data = data;
+      req.data = data;
+    }
+
+    if (this.config.secretKey) {
+      const nonce = generateNonce();
+      const timestamp = Date.now().toString();
+      req.headers.nonce = nonce;
+      req.headers.timestamp = timestamp;
+      const data = mapping.method === "GET" ? req.params : req.data;
+      req.headers.signature = signature({
+        ...data,
+        nonce,
+        timestamp,
+        secretKey: this.config.secretKey
+      });
     }
 
     return this.http.axiosRef.request<unknown, R>({
-      ...request,
+      ...req,
       url: mapping.url,
       method: mapping.method
     });
   }
 
-  /*
-  * 初始化服务中心
-  * */
+  /**
+   * 初始化服务中心
+   * */
   private async initNacos() {
-    if (!this.nacos) {
-      if (!this.nacosConfig.logger) {
-        this.nacosConfig.logger = this.logger;
+    if (!this.client) {
+      if (!this.config.registry.logger) {
+        this.config.registry.logger = this.logger;
       }
 
-      this.nacos = new NacosNamingClient(this.nacosConfig);
-      await this.nacos.ready();
+      this.client = new NacosNamingClient(this.config.registry);
+      await this.client.ready();
     }
   }
 
-  /*
-  * 初始化服务
-  * */
+  /**
+   * 初始化服务
+   * */
   private async initService(serviceName: string, groupName: string = "DEFAULT_GROUP") {
     await this.initNacos();
-    const instances: Instance[] = await this.nacos.getAllInstances(serviceName, groupName);
+    const instances: Instance[] = await this.client.getAllInstances(serviceName, groupName);
     this.setService(serviceName, instances);
-    this.nacos.subscribe({ serviceName, groupName }, (info: Instance[]) => this.setService(serviceName, info));
+    this.client.subscribe({ serviceName, groupName }, (info: Instance[]) => this.setService(serviceName, info));
   }
 
-  /*
-  * 获取服务节点地址
-  * */
+  /**
+   * 获取服务节点地址
+   * */
   private async getHost(name: string) {
     if (!this.services.has(name)) {
       await this.initService(name);
@@ -93,9 +108,9 @@ export class FeignService {
     return sv.hosts[sv.index];
   }
 
-  /*
-  * 保存服务节点地址信息
-  * */
+  /**
+   * 保存服务节点地址信息
+   * */
   private setService(name: string, instances: Instance[]) {
     const hosts = instances.filter(x => x.enabled).map(x => `http://${x.ip}:${x.port}`);
     this.services.set(name, { index: 0, hosts });

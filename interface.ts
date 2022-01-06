@@ -1,4 +1,5 @@
 import { Logger } from "log4js";
+import { HttpModuleOptions } from "@nestjs/common";
 
 export type Method =
   | "get" | "GET"
@@ -12,10 +13,14 @@ export type Method =
   | "link" | "LINK"
   | "unlink" | "UNLINK";
 
-export type NacosConfig = {
-  logger?: Logger,
-  namespace?: string,
-  serverList: string | string[]
+export type FeignConfig = {
+  secretKey?: string;
+  registry: {
+    logger?: Logger,
+    namespace?: string,
+    serverList: string | string[],
+  },
+  httpOptions?: HttpModuleOptions
 };
 
 export type Mapping = {

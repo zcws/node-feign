@@ -10,9 +10,14 @@ describe("test", () => {
     const module = await Test.createTestingModule({
       imports: [
         FeignModule.forRoot({
-          namespace: process.env.namespace,
-          serverList: process.env.serverList
-        }, { timeout: 3000 })
+          registry: {
+            namespace: process.env.namespace,
+            serverList: process.env.serverList
+          },
+          httpOptions: {
+            timeout: 3000
+          }
+        })
       ],
       controllers: [MapService]
     }).compile();

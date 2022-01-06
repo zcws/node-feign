@@ -2,7 +2,7 @@ import * as Nacos from "nacos";
 import { getLogger } from "log4js";
 import { FeignConfig, Mapping } from "./interface";
 import { HttpModuleOptions, HttpService } from "@nestjs/axios";
-import { generateNonce, signature } from "./util";
+import { Util } from "./util";
 
 type Service = {
   index: number;
@@ -47,12 +47,12 @@ export class FeignService {
     }
 
     if (this.config.secretKey) {
-      const nonce = generateNonce();
+      const nonce = Util.generateNonce();
       const timestamp = Date.now().toString();
       req.headers.nonce = nonce;
       req.headers.timestamp = timestamp;
       const data = mapping.method === "GET" ? req.params : req.data;
-      req.headers.signature = signature({
+      req.headers.signature = Util.signature({
         ...data,
         nonce,
         timestamp,
@@ -70,7 +70,7 @@ export class FeignService {
   /**
    * 初始化服务中心
    * */
-  private async initNacos() {
+  private async initNacos(): Promise<void> {
     if (!this.client) {
       if (!this.config.registry.logger) {
         this.config.registry.logger = this.logger;
@@ -84,7 +84,7 @@ export class FeignService {
   /**
    * 初始化服务
    * */
-  private async initService(serviceName: string, groupName: string = "DEFAULT_GROUP") {
+  private async initService(serviceName: string, groupName: string = "DEFAULT_GROUP"): Promise<void> {
     await this.initNacos();
     const instances: Instance[] = await this.client.getAllInstances(serviceName, groupName);
     this.setService(serviceName, instances);
@@ -94,7 +94,7 @@ export class FeignService {
   /**
    * 获取服务节点地址
    * */
-  private async getHost(name: string) {
+  private async getHost(name: string): Promise<string> {
     if (!this.services.has(name)) {
       await this.initService(name);
     }
@@ -111,8 +111,15 @@ export class FeignService {
   /**
    * 保存服务节点地址信息
    * */
-  private setService(name: string, instances: Instance[]) {
+  private setService(name: string, instances: Instance[]): void {
     const hosts = instances.filter(x => x.enabled).map(x => `http://${x.ip}:${x.port}`);
     this.services.set(name, { index: 0, hosts });
+  }
+
+  /**
+   * 签名
+   * */
+  static signature(data: { [i: string]: unknown }): string {
+    return Util.signature(data);
   }
 }

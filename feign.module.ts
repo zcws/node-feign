@@ -1,24 +1,24 @@
-import { DynamicModule, HttpModuleOptions, Module } from "@nestjs/common";
+import { DynamicModule, Module } from "@nestjs/common";
 import { FeignService } from "./feign.service";
 import { HttpModule, HttpService } from "@nestjs/axios";
-import { NacosConfig } from "./interface";
+import { FeignConfig } from "./interface";
 
 @Module({})
 export class FeignModule {
-  static forRoot(nacos: NacosConfig, config: HttpModuleOptions = {}): DynamicModule {
+  static forRoot(config: FeignConfig): DynamicModule {
     const provider = {
       inject: [HttpService],
       provide: FeignService,
       useFactory(http: HttpService) {
-        return new FeignService(nacos, http);
+        return new FeignService(config, http);
       }
     };
     return {
       module: FeignModule,
       imports: [
         HttpModule.register({
-          ...config,
-          timeout: 5000
+          timeout: 5000,
+          ...config.httpOptions
         })
       ],
       providers: [provider],

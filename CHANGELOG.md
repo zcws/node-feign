@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/imbooo/node-feign/compare/v1.1.0...v1.1.1) (2022-01-06)
+
+
+### Features
+
+* 调整签名算法。 ([edcf7ff](https://github.com/imbooo/node-feign/commit/edcf7ffda453547388d685bcea85d4b529235e89))
+
 ## [1.1.0](https://github.com/imbooo/node-feign/compare/v1.0.3...v1.1.0) (2022-01-06)
 
 

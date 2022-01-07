@@ -49,6 +49,10 @@ export class FeignService {
     if (this.config.secretKey) {
       const nonce = Util.generateNonce();
       const timestamp = Date.now().toString();
+      if (!req.headers) {
+        req.headers = {};
+      }
+
       req.headers.nonce = nonce;
       req.headers.timestamp = timestamp;
       const data = mapping.method === "GET" ? req.params : req.data;

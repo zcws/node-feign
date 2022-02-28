@@ -14,7 +14,6 @@ export type Method =
   | "unlink" | "UNLINK";
 
 export type FeignConfig = {
-  onlyData?: boolean;
   secretKey?: string;
   registry: {
     logger?: Logger,

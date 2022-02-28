@@ -38,7 +38,7 @@ export class FeignService {
   constructor(private readonly config: FeignConfig, private readonly http: HttpService) {
   }
 
-  async do<R>(mapping: Mapping, data: { [key: string]: unknown } = {}, options: HttpOptions = {}): Promise<R | AxiosResponse<R>> {
+  async request<R>(mapping: Mapping, data: { [key: string]: unknown } = {}, options: HttpOptions = {}): Promise<AxiosResponse<R>> {
     const req: HttpModuleOptions = { ...options };
     req.baseURL = await this.getHost(mapping.name);
     if (mapping.method === "GET") {
@@ -65,17 +65,16 @@ export class FeignService {
       });
     }
 
-    const res = await this.http.axiosRef.request<unknown, AxiosResponse<R>>({
+    return this.http.axiosRef.request<unknown, AxiosResponse<R>>({
       ...req,
       url: mapping.url,
       method: mapping.method
     });
+  }
 
-    if (this.config.onlyData) {
-      return res?.data;
-    } else {
-      return res;
-    }
+  async do<R>(mapping: Mapping, data: { [key: string]: unknown } = {}, options: HttpOptions = {}): Promise<R> {
+    const res = await this.request<R>(mapping, data, options);
+    return res?.data;
   }
 
   /**

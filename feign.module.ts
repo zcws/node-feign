@@ -18,6 +18,7 @@ export class FeignModule {
       imports: [
         HttpModule.register({
           timeout: 5000,
+          responseType: "json",
           ...config.httpOptions
         })
       ],

@@ -1,5 +1,5 @@
 import { Logger } from "log4js";
-import { HttpModuleOptions } from "@nestjs/common";
+import { HttpModuleOptions } from "@nestjs/axios";
 
 export type Method =
   | "get" | "GET"

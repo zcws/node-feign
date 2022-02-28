@@ -3,6 +3,7 @@ import { getLogger } from "log4js";
 import { FeignConfig, Mapping } from "./interface";
 import { HttpModuleOptions, HttpService } from "@nestjs/axios";
 import { Util } from "./util";
+import { AxiosResponse } from "axios";
 
 type Service = {
   index: number;
@@ -37,7 +38,7 @@ export class FeignService {
   constructor(private readonly config: FeignConfig, private readonly http: HttpService) {
   }
 
-  async do<R>(mapping: Mapping, data: { [key: string]: unknown } = {}, options: HttpOptions = {}): Promise<R> {
+  async do<R>(mapping: Mapping, data: { [key: string]: unknown } = {}, options: HttpOptions = {}): Promise<R | AxiosResponse<R>> {
     const req: HttpModuleOptions = { ...options };
     req.baseURL = await this.getHost(mapping.name);
     if (mapping.method === "GET") {
@@ -64,11 +65,17 @@ export class FeignService {
       });
     }
 
-    return this.http.axiosRef.request<unknown, R>({
+    const res = await this.http.axiosRef.request<unknown, AxiosResponse<R>>({
       ...req,
       url: mapping.url,
       method: mapping.method
     });
+
+    if (this.config.onlyData) {
+      return res?.data;
+    } else {
+      return res;
+    }
   }
 
   /**

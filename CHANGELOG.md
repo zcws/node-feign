@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.2](https://github.com/imbooo/node-feign/compare/v1.4.1...v1.4.2) (2022-03-16)
+
+
+### Bug Fixes
+
+* 修复设置默认httpOptions。 ([f2d148c](https://github.com/imbooo/node-feign/commit/f2d148c742d4cf57f4b1c094bad32c65d225688c))
+
 ### [1.4.1](https://github.com/imbooo/node-feign/compare/v1.4.0...v1.4.1) (2022-03-16)
 
 

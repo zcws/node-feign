@@ -35,8 +35,12 @@ export class FeignService {
   private client: typeof NacosNamingClient;
   private services = new Map<string, Service>();
   private logger = getLogger("FeignService");
+  #httpOptions;
 
   constructor(private readonly config: FeignConfig, private readonly http: HttpService) {
+    if (config.httpOptions) {
+      this.#httpOptions = config.httpOptions;
+    }
   }
 
   async request<R>(mapping: Mapping, data: { [key: string]: unknown } = {}, options: HttpOptions = {}): Promise<AxiosResponse<R>> {
@@ -125,7 +129,7 @@ export class FeignService {
   private setService(name: string, instances: Instance[]): void {
     const hosts = instances.filter(x => x.enabled).map(x => {
       const url = new URL(`http://${x.ip}:${x.port}`);
-      if (this.config.httpOptions?.prefix) {
+      if (this.#httpOptions?.prefix) {
         url.pathname = this.config.httpOptions.prefix;
       }
 
@@ -139,5 +143,12 @@ export class FeignService {
    * */
   static signature(data: { [i: string]: unknown }): string {
     return Util.signature(data);
+  }
+
+  /**
+  * 设置http默认选项
+  * */
+  setDefaultHttpOptions(httpOptions: HttpModuleOptions & { prefix: string }) {
+    this.#httpOptions = httpOptions;
   }
 }

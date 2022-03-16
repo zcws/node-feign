@@ -3,7 +3,7 @@ import { getLogger } from "log4js";
 import { FeignConfig, Mapping } from "./interface";
 import { HttpModuleOptions, HttpService } from "@nestjs/axios";
 import { Util } from "./util";
-import { AxiosResponse } from "axios";
+import { AxiosDefaults, AxiosResponse } from "axios";
 import { URL } from "url";
 
 type Service = {
@@ -35,11 +35,11 @@ export class FeignService {
   private client: typeof NacosNamingClient;
   private services = new Map<string, Service>();
   private logger = getLogger("FeignService");
-  #httpOptions;
+  #prefix;
 
   constructor(private readonly config: FeignConfig, private readonly http: HttpService) {
-    if (config.httpOptions) {
-      this.#httpOptions = config.httpOptions;
+    if (config.httpOptions?.prefix) {
+      this.#prefix = config.httpOptions.prefix;
     }
   }
 
@@ -129,8 +129,8 @@ export class FeignService {
   private setService(name: string, instances: Instance[]): void {
     const hosts = instances.filter(x => x.enabled).map(x => {
       const url = new URL(`http://${x.ip}:${x.port}`);
-      if (this.#httpOptions?.prefix) {
-        url.pathname = this.config.httpOptions.prefix;
+      if (this.#prefix) {
+        url.pathname = this.#prefix;
       }
 
       return url.toString();
@@ -146,9 +146,14 @@ export class FeignService {
   }
 
   /**
-  * 设置http默认选项
-  * */
-  setDefaultHttpOptions(httpOptions: HttpModuleOptions & { prefix: string }) {
-    this.#httpOptions = httpOptions;
+   * 设置http默认选项
+   * */
+  setDefaultHttpOptions(options: AxiosDefaults & { prefix?: string }) {
+    if (options.prefix) {
+      this.#prefix = options.prefix;
+      delete options.prefix;
+    }
+
+    this.http.axiosRef.defaults = options;
   }
 }

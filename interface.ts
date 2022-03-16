@@ -20,7 +20,7 @@ export type FeignConfig = {
     namespace?: string,
     serverList: string | string[],
   },
-  httpOptions?: HttpModuleOptions
+  httpOptions?: HttpModuleOptions & { prefix?: string }
 };
 
 export type Mapping = {

@@ -4,6 +4,7 @@ import { FeignConfig, Mapping } from "./interface";
 import { HttpModuleOptions, HttpService } from "@nestjs/axios";
 import { Util } from "./util";
 import { AxiosResponse } from "axios";
+import { URL } from "url";
 
 type Service = {
   index: number;
@@ -122,7 +123,14 @@ export class FeignService {
    * 保存服务节点地址信息
    * */
   private setService(name: string, instances: Instance[]): void {
-    const hosts = instances.filter(x => x.enabled).map(x => `http://${x.ip}:${x.port}`);
+    const hosts = instances.filter(x => x.enabled).map(x => {
+      const url = new URL(`http://${x.ip}:${x.port}`);
+      if (this.config.httpOptions?.prefix) {
+        url.pathname = this.config.httpOptions.prefix;
+      }
+
+      return url.toString();
+    });
     this.services.set(name, { index: 0, hosts });
   }
 

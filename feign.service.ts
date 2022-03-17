@@ -3,7 +3,7 @@ import { getLogger } from "log4js";
 import { FeignConfig, Mapping } from "./interface";
 import { HttpModuleOptions, HttpService } from "@nestjs/axios";
 import { Util } from "./util";
-import { AxiosDefaults, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { URL } from "url";
 
 type Service = {
@@ -146,14 +146,9 @@ export class FeignService {
   }
 
   /**
-   * 设置http默认选项
+   * 设置prefix
    * */
-  setDefaultHttpOptions(options: AxiosDefaults & { prefix?: string }) {
-    if (options.prefix) {
-      this.#prefix = options.prefix;
-      delete options.prefix;
-    }
-
-    this.http.axiosRef.defaults = options;
+  setPrefix(prefix: string) {
+    this.#prefix = prefix;
   }
 }

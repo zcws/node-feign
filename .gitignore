@@ -14,3 +14,4 @@ target/
 .settings/
 *.js
 yarn.lock
+.env

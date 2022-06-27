@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { FeignModule } from "../index";
+import { FeignModule, FeignOptions } from "../index";
 import { Test } from "@nestjs/testing";
 import { MapService } from "./map.service";
 
@@ -9,13 +9,17 @@ describe("test", () => {
   before(async () => {
     const module = await Test.createTestingModule({
       imports: [
-        FeignModule.forRoot({
-          registry: {
-            namespace: process.env.namespace,
-            serverList: process.env.serverList
-          },
-          httpOptions: {
-            timeout: 3000
+        FeignModule.forRootAsync({
+          useFactory(): FeignOptions {
+            return {
+              registry: {
+                namespace: process.env.namespace,
+                serverList: process.env.serverList
+              },
+              httpOptions: {
+                timeout: 30000
+              }
+            };
           }
         })
       ],

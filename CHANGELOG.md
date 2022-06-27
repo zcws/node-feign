@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/imbooo/node-feign/compare/v1.4.2...v1.5.0) (2022-06-27)
+
+
+### Features
+
+* 支持异步配置。 ([a20b54b](https://github.com/imbooo/node-feign/commit/a20b54bffd81fe073e7770e80597ac4699ccee89))
+
 ### [1.4.2](https://github.com/imbooo/node-feign/compare/v1.4.1...v1.4.2) (2022-03-16)
 
 

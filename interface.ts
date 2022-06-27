@@ -13,7 +13,7 @@ export type Method =
   | "link" | "LINK"
   | "unlink" | "UNLINK";
 
-export type FeignConfig = {
+export type FeignOptions = {
   secretKey?: string;
   registry: {
     logger?: Logger,

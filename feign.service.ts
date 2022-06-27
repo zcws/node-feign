@@ -1,6 +1,6 @@
 import * as Nacos from "nacos";
 import { getLogger } from "log4js";
-import { FeignConfig, Mapping } from "./interface";
+import { FeignOptions, Mapping } from "./interface";
 import { HttpModuleOptions, HttpService } from "@nestjs/axios";
 import { Util } from "./util";
 import { AxiosResponse } from "axios";
@@ -37,9 +37,9 @@ export class FeignService {
   private logger = getLogger("FeignService");
   #prefix;
 
-  constructor(private readonly config: FeignConfig, private readonly http: HttpService) {
-    if (config.httpOptions?.prefix) {
-      this.#prefix = config.httpOptions.prefix;
+  constructor(private readonly options: FeignOptions, private readonly http: HttpService) {
+    if (options.httpOptions?.prefix) {
+      this.#prefix = options.httpOptions.prefix;
     }
   }
 
@@ -52,7 +52,7 @@ export class FeignService {
       req.data = data;
     }
 
-    if (this.config.secretKey) {
+    if (this.options.secretKey) {
       const nonce = Util.generateNonce();
       const timestamp = Date.now().toString();
       if (!req.headers) {
@@ -66,7 +66,7 @@ export class FeignService {
         ...data,
         nonce,
         timestamp,
-        secretKey: this.config.secretKey
+        secretKey: this.options.secretKey
       });
     }
 
@@ -87,11 +87,11 @@ export class FeignService {
    * */
   private async initNacos(): Promise<void> {
     if (!this.client) {
-      if (!this.config.registry.logger) {
-        this.config.registry.logger = this.logger;
+      if (!this.options.registry.logger) {
+        this.options.registry.logger = this.logger;
       }
 
-      this.client = new NacosNamingClient(this.config.registry);
+      this.client = new NacosNamingClient(this.options.registry);
       await this.client.ready();
     }
   }
